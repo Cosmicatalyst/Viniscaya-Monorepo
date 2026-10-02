@@ -31,3 +31,16 @@ def test_queue_and_raw_download_guard(client):
     assert client.get("/v1/jobs/"+id+"/predictions",headers=headers).status_code==409
     assert client.post("/v1/jobs",headers=headers,data={"text":"hello"}).status_code==202
     assert client.post("/v1/jobs",headers=headers,data={"text":"hello"}).status_code==429
+
+
+def test_brain_frame_auth_and_bounds(client):
+    import numpy as np,json
+    headers={"Authorization":"Bearer test-token"}
+    id=client.post("/v1/jobs",headers=headers,data={"text":"hello"}).json()["id"]
+    assert client.get(f"/v1/jobs/{id}/frames/0").status_code==401
+    assert client.get(f"/v1/jobs/{id}/frames/0",headers=headers).status_code==409
+    path=Path(os.environ["TRIBE_DATA_DIR"])/id
+    (path/"status.json").write_text(json.dumps({"id":id,"status":"completed"}),encoding="utf-8")
+    np.save(path/"predictions.npy",np.zeros((2,20484)),allow_pickle=False)
+    assert client.get(f"/v1/jobs/{id}/frames/2",headers=headers).status_code==404
+    assert client.get(f"/v1/jobs/{id}/frames/-1",headers=headers).status_code==404

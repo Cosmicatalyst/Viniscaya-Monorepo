@@ -1,5 +1,5 @@
 """Authenticated research brain-response API; one stimulus per job."""
-import os, json, secrets, threading, subprocess
+import os, json, secrets, threading, subprocess, time
 from pathlib import Path
 from uuid import uuid4
 from contextlib import asynccontextmanager
@@ -22,6 +22,8 @@ async def lifespan(app):
 app=FastAPI(title="Vinicaya TRIBE v2 Research API",lifespan=lifespan)
 auth=HTTPBearer();pool=ThreadPoolExecutor(max_workers=1);slots=threading.BoundedSemaphore(2)
 model=None
+recognizer=None
+video_optimized=False
 
 def authorize(credentials=Depends(auth)):
     if not secrets.compare_digest(credentials.credentials,TOKEN):raise HTTPException(401,"Invalid API token")
@@ -39,9 +41,13 @@ def status(path,value):
 def health():return {"status":"ok","service":"TRIBE v2","model_loaded":model is not None,"clinical_use":False}
 
 def transcribe(filename, language):
+    global recognizer
     import pandas as pd
+    import torch
     from transformers import pipeline
-    recognizer=pipeline("automatic-speech-recognition",model="openai/whisper-small",device=-1)
+    if recognizer is None:
+        gpu=os.getenv("TRIBE_DEVICE","cpu")=="cuda" and torch.cuda.is_available()
+        recognizer=pipeline("automatic-speech-recognition",model="openai/whisper-small",device=0 if gpu else -1,torch_dtype=torch.float16 if gpu else torch.float32)
     transcript=recognizer(str(filename),return_timestamps="word",generate_kwargs={"language":"english"})
     rows=[]
     for item in transcript["chunks"]:
@@ -52,7 +58,8 @@ def transcribe(filename, language):
     return pd.DataFrame(rows)
 
 def run(path,id,source,kind):
-    global model
+    global model, video_optimized
+    started=time.monotonic()
     try:
         status(path,{"id":id,"status":"running","phase":"Loading model"})
         import numpy as np
@@ -62,6 +69,16 @@ def run(path,id,source,kind):
         if device=="cuda":
             if not torch.cuda.is_available():raise ValueError("GPU runtime is unavailable")
             torch.cuda.set_per_process_memory_fraction(0.28)
+            torch.backends.cuda.matmul.allow_tf32=True
+            torch.backends.cudnn.allow_tf32=True
+            if not video_optimized:
+                from neuralset.extractors.video import _HFVideoModel
+                original=_HFVideoModel.predict_hidden_states
+                def fast_hidden_states(self,images,audio=None):
+                    with torch.autocast("cuda",dtype=torch.bfloat16,enabled=self.model.device.type=="cuda"):
+                        return original(self,images,audio).float()
+                _HFVideoModel.predict_hidden_states=fast_hidden_states
+                video_optimized=True
         if model is None:
             model=TribeModel.from_pretrained(os.getenv("TRIBE_WEIGHTS", "facebook/tribev2"),cache_folder=str(ROOT/"cache"),device=device,config_update={"data.text_feature.device":device,"data.audio_feature.device":device,"data.image_feature.image.device":device,"data.video_feature.image.device":device,"data.video_feature.image.batch_size":1,"data.batch_size":1})
         status(path,{"id":id,"status":"running","phase":"Preparing stimulus and word timings"})
@@ -73,13 +90,15 @@ def run(path,id,source,kind):
         if not duration or float(duration)>120:raise ValueError("Use a stimulus lasting at most 120 seconds")
         from tribev2.eventstransforms import ExtractWordsFromAudio
         ExtractWordsFromAudio._get_transcript_from_audio=staticmethod(transcribe)
+        prepared=time.monotonic()
         events=model.get_events_dataframe(**{kind+"_path":str(source)})
         status(path,{"id":id,"status":"running","phase":"Encoding stimulus and predicting cortical responses"})
+        encoded=time.monotonic()
         predictions,segments=model.predict(events,verbose=False)
         if predictions.ndim!=2 or not len(predictions) or not np.isfinite(predictions).all():raise ValueError("Model returned unusable predictions")
         np.save(path/"predictions.npy",predictions,allow_pickle=False)
         timeline=[{"start_seconds":float(segment.start),"duration_seconds":float(segment.duration),"mean_response":float(row.mean()),"rms_response":float(np.sqrt((row**2).mean()))} for row,segment in zip(predictions,segments)]
-        result={"model":"TRIBE v2","shape":list(predictions.shape),"surface":"fsaverage5","timeline":timeline,"note":"Predicted average-subject cortical responses to this stimulus. Not measured patient brain activity, diagnosis, EEG or tumor analysis. Summary means/RMS are visualization statistics, not clinical metrics. Text is locally synthesized with espeak-ng; word timings use Whisper-small in place of upstream WhisperX. This preprocessing variant has not been benchmarked."}
+        result={"model":"TRIBE v2","shape":list(predictions.shape),"surface":"fsaverage5","timings_seconds":{"preparation":round(prepared-started,2),"word_timings":round(encoded-prepared,2),"prediction":round(time.monotonic()-encoded,2),"total":round(time.monotonic()-started,2)},"timeline":timeline,"note":"Predicted average-subject cortical responses to this stimulus. Not measured patient brain activity, diagnosis, EEG or tumor analysis. Summary means/RMS are visualization statistics, not clinical metrics. Text is locally synthesized with espeak-ng; word timings use Whisper-small in place of upstream WhisperX. GPU video encoding uses bfloat16 mixed precision; small numerical differences are possible. This preprocessing variant has not been benchmarked."}
         (path/"result.json").write_text(json.dumps(result,allow_nan=False),encoding="utf-8")
         status(path,{"id":id,"status":"completed"})
     except Exception as error:
@@ -122,3 +141,31 @@ def predictions(id:str):
     path=folder(id)
     if not (path/"predictions.npy").is_file():raise HTTPException(409,"Predictions not ready")
     return FileResponse(path/"predictions.npy",filename="tribe-brain-responses.npy",media_type="application/octet-stream")
+
+
+plot_lock=threading.Lock()
+@app.get("/v1/jobs/{id}/frames/{step}",dependencies=[Depends(authorize)])
+def brain_frame(id:str,step:int):
+    path=folder(id)
+    if json.loads((path/"status.json").read_text())["status"]!="completed":raise HTTPException(409,"Predictions not ready")
+    import numpy as np
+    data=np.load(path/"predictions.npy",mmap_mode="r",allow_pickle=False)
+    if not 0<=step<len(data):raise HTTPException(404,"Unknown time step")
+    if data.shape[1]!=20484:raise HTTPException(422,"Unsupported cortical surface")
+    image=path/f"brain-{step}.png"
+    with plot_lock:
+        if not image.exists():
+            import matplotlib
+            matplotlib.use("Agg")
+            import matplotlib.pyplot as plt
+            from nilearn import datasets, plotting
+            mesh=datasets.fetch_surf_fsaverage("fsaverage5")
+            limit=max(float(np.percentile(np.abs(data),98)),1e-6)
+            fig=plt.figure(figsize=(10,3.5),facecolor="white")
+            try:
+                for i,hemi in enumerate(("left","right")):
+                    ax=fig.add_subplot(1,2,i+1,projection="3d")
+                    plotting.plot_surf_stat_map(mesh[f"infl_{hemi}"],data[step,i*10242:(i+1)*10242],hemi=hemi,view="lateral",bg_map=mesh[f"sulc_{hemi}"],cmap="cold_hot",vmin=-limit,vmax=limit,colorbar=i==1,axes=ax,figure=fig,title=f"{hemi.title()} cortex")
+                fig.savefig(image,dpi=120,bbox_inches="tight")
+            finally:plt.close(fig)
+    return FileResponse(image,media_type="image/png")

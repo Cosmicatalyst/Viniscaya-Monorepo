@@ -2,7 +2,7 @@ import { isSignedIn } from "@/lib/session";
 async function proxy(request: Request, context: {params: Promise<{path: string[]}>}) {
  if (!(await isSignedIn())) return Response.json({error:"Please sign in again."},{status:401});
  const target=(await context.params).path.join("/");
- if (!/^(health|v1\/jobs|v1\/jobs\/[a-f0-9]{32}(\/predictions)?)$/.test(target)) return Response.json({error:"Unknown endpoint"},{status:404});
+ if (!/^(health|v1\/jobs|v1\/jobs\/[a-f0-9]{32}(\/predictions|\/frames\/\d{1,3})?)$/.test(target)) return Response.json({error:"Unknown endpoint"},{status:404});
  if(request.method==="POST") {
   const origin=request.headers.get("origin");
   try {if(origin && new URL(origin).host!==request.headers.get("host"))return Response.json({error:"Invalid origin"},{status:403});}
