@@ -1,0 +1,16 @@
+[Unit]
+Description=Vinicaya TRIBE v2 API
+After=network-online.target
+Wants=network-online.target
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/vinicaya-tribe
+EnvironmentFile=/home/ubuntu/vinicaya-tribe/api.env
+Environment=CUDA_VISIBLE_DEVICES=
+Environment=OMP_NUM_THREADS=8
+Environment=MKL_NUM_THREADS=8
+ExecStart=/home/ubuntu/vinicaya-tribe/.venv/bin/python -m uvicorn api:app --host 127.0.0.1 --port 8026
+Restart=on-failure
+RestartSec=5
+[Install]
+WantedBy=multi-user.target

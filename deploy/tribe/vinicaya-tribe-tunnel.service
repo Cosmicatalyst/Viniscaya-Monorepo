@@ -1,0 +1,11 @@
+[Unit]
+Description=Authenticated Vinicaya TRIBE API HTTPS tunnel
+After=network-online.target vinicaya-tribe.service
+Wants=network-online.target
+[Service]
+User=ubuntu
+ExecStart=/usr/local/bin/cloudflared tunnel --config /home/ubuntu/vinicaya-tribe/tunnel.yml --no-autoupdate run 0300903a-1726-49e9-ba91-09bae1124e4e
+Restart=on-failure
+RestartSec=5
+[Install]
+WantedBy=multi-user.target

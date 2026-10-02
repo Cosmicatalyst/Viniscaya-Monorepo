@@ -1,0 +1,10 @@
+# TRIBE v2 service
+Deployed in `/home/ubuntu/vinicaya-tribe` on ubuntu@192.222.50.174, isolated from existing services. API listens only on localhost:8026. `vinicaya-tribe` and `vinicaya-tribe-tunnel` are systemd services enabled on boot. Original upstream revision: af58661791a351a448a489042a28f6c37e1c14b7.
+
+Set server-side `TRIBE_API_URL` and `TRIBE_API_TOKEN` in the Next.js environment. Secrets and SSH keys are not included in this repository. Permanent endpoint: https://tribe.tnsaai.com. A dedicated named Cloudflare tunnel keeps the same hostname after restarts. The initially requested tribe.vinicaya.tnsaai.com DNS record exists but has no verified edge certificate; it is not the platform endpoint. Text/audio test completed with shape (5, 20484); video testing is separate.
+
+POST /v1/jobs accepts multipart text or one file (.txt, audio or video); GET /v1/jobs/{id} returns status and summary; GET /v1/jobs/{id}/predictions downloads the full response array. All job endpoints require bearer authentication. Limits: 25 MB, 120 seconds, 5000 text characters, two jobs admitted, one running. One source is accepted per job; a video can contain its own audio.
+
+TRIBE outputs average-subject predicted cortical activity on fsaverage5, not patient measurements or diagnosis. CPU mode protects the nearly full existing GPU. All feature extractors use CPU. Local English espeak-ng synthesis replaces remote gTTS. Whisper-small word timestamps replace upstream WhisperX for ARM compatibility. These preprocessing changes are unbenchmarked. Model code/weights are subject to upstream CC-BY-NC-4.0 and component-specific model terms. No clinical validation is implied.
+
+Runtime status must be checked separately; a healthy API does not certify successful model inference. Use `journalctl -u vinicaya-tribe` and a completed test job before treating inference as working. Model caches and uploaded files remain on the server until explicitly removed; no automatic retention cleanup currently exists.

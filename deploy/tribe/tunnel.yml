@@ -1,0 +1,6 @@
+tunnel: 0300903a-1726-49e9-ba91-09bae1124e4e
+credentials-file: /home/ubuntu/.cloudflared/0300903a-1726-49e9-ba91-09bae1124e4e.json
+ingress:
+  - hostname: tribe.tnsaai.com
+    service: http://127.0.0.1:8026
+  - service: http_status:404
