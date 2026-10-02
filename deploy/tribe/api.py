@@ -174,3 +174,53 @@ def brain_frame(id:str,step:int):
                 fig.savefig(image,dpi=120,bbox_inches="tight")
             finally:plt.close(fig)
     return FileResponse(image,media_type="image/png")
+
+
+@app.get("/v1/jobs/{id}/report",dependencies=[Depends(authorize)])
+def brain_report(id:str,download:bool=False):
+    path=folder(id)
+    if json.loads((path/"status.json").read_text())["status"]!="completed":raise HTTPException(409,"Predictions not ready")
+    import numpy as np
+    result=json.loads((path/"result.json").read_text())
+    data=np.load(path/"predictions.npy",mmap_mode="r",allow_pickle=False)
+    points=result["timeline"]
+    peak=max(points,key=lambda p:p["rms_response"])
+    rms=np.array([p["rms_response"] for p in points])
+    mean=np.array([p["mean_response"] for p in points])
+    left=float(np.sqrt(np.mean(np.square(data[:,:10242]))))
+    right=float(np.sqrt(np.mean(np.square(data[:,10242:]))))
+    rows="\n".join(f"| {p['start_seconds']:.2f} | {p['duration_seconds']:.2f} | {p['mean_response']:.5f} | {p['rms_response']:.5f} |" for p in points)
+    markdown=f"""# Brain-response research report
+Analysis: `{id}` · Model: TRIBE v2
+
+## Scope
+Predicted average-subject cortical response to the submitted stimulus. This is a model-generated response sequence, not a recording of the speaker's or patient's brain activity.
+
+## Quantitative summary
+- Time steps: **{data.shape[0]}**; cortical vertices: **{data.shape[1]:,}** (fsaverage5).
+- Modeled window: **{points[0]['start_seconds']:.2f}–{points[-1]['start_seconds']+points[-1]['duration_seconds']:.2f} seconds**.
+- Peak global RMS: **{peak['rms_response']:.5f}** at **{peak['start_seconds']:.2f} seconds**.
+- Global RMS range: **{rms.min():.5f}–{rms.max():.5f}**; average **{rms.mean():.5f}**.
+- Signed mean response range: **{mean.min():.5f}–{mean.max():.5f}**.
+- Whole-sequence hemisphere RMS: left **{left:.5f}**, right **{right:.5f}**.
+
+## Interpretation
+The largest modeled overall response occurs at {peak['start_seconds']:.2f} seconds. Global RMS summarizes magnitude across vertices; the signed mean can cancel opposing responses. Hemisphere RMS compares overall modeled magnitude and does not establish functional lateralization, abnormality, or disease. Values are in model units, with no validated clinical reference range.
+
+## Cortical maps
+The timeline-linked maps show left and right lateral cortical surfaces. Warm and cool colors represent positive and negative model values; neither indicates healthy or diseased tissue. All frames share the same scale. Lateral views do not expose every cortical region.
+
+## Temporal measurements
+| Start (s) | Window (s) | Signed mean | RMS |
+| --- | --- | --- | --- |
+{rows}
+
+## Limits and next steps
+{result['note']}
+
+No EEG, fMRI, examination, or clinical history was measured in this analysis. Disease, cognition, emotion, and neurological function cannot be determined from these predictions. Compare stimulus-aligned predictions with recorded brain measurements in a validated research protocol before drawing individual conclusions.
+"""
+    if download:
+        from fastapi.responses import Response
+        return Response(markdown,media_type="text/markdown",headers={"Content-Disposition":f'attachment; filename="brain-response-{id}.md"'})
+    return {"title":"Brain-response report","scope":"Predicted cortical activity · Research interpretation","markdown":markdown,"generation_status":"completed","model":"TRIBE v2"}

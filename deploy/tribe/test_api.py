@@ -56,3 +56,21 @@ def test_microphone_webm_is_audio(client,monkeypatch):
     response=client.post("/v1/jobs",headers={"Authorization":"Bearer test-token"},files={"file":("voice.webm",b"recording","audio/webm")})
     assert response.status_code==202
     assert captured[0][-1]=="audio"
+
+
+def test_brain_report_statistics(client):
+    import numpy as np,json
+    headers={"Authorization":"Bearer test-token"}
+    id=client.post("/v1/jobs",headers=headers,data={"text":"hello"}).json()["id"]
+    assert client.get(f"/v1/jobs/{id}/report",headers=headers).status_code==409
+    path=Path(os.environ["TRIBE_DATA_DIR"])/id
+    data=np.ones((2,20484));data[1]*=2
+    np.save(path/"predictions.npy",data)
+    (path/"status.json").write_text(json.dumps({"status":"completed"}))
+    (path/"result.json").write_text(json.dumps({"note":"Research only","timeline":[{"start_seconds":i,"duration_seconds":1,"mean_response":i+1,"rms_response":i+1} for i in range(2)]}))
+    r=client.get(f"/v1/jobs/{id}/report",headers=headers)
+    assert r.status_code==200
+    assert "**2.00000** at **1.00 seconds**" in r.json()["markdown"]
+    assert "left **1.58114**" in r.json()["markdown"]
+    assert "not a recording" in r.json()["markdown"]
+    assert client.get(f"/v1/jobs/{id}/report?download=true",headers=headers).headers["content-type"].startswith("text/markdown")

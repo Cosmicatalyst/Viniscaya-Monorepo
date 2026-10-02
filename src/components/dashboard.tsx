@@ -19,7 +19,7 @@ export function Dashboard() {
   const [collapsed, setCollapsed] = useState(false);
   const [thread, setThread] = useState<{id: string; messages: ChatMessage[]; report_ids?: string[]}>();
   return (
-    <ReportChatContext.Provider value={jobId => {setThread({id: crypto.randomUUID().replaceAll("-", ""), messages: [], report_ids: [jobId]});setActive("Co-Doc");}}><main className={`dashboard-shell ${collapsed ? "sidebar-collapsed" : ""} ${active === "Co-Doc" ? "chat-active" : ""}`}>
+    <ReportChatContext.Provider value={(jobId,seed) => {setThread({id: crypto.randomUUID().replaceAll("-", ""), messages: seed ? [{role:"user",content:`Brain-response research report for discussion (predictions, not patient measurements):\n${seed}`}]:[], report_ids: seed ? [] : [jobId]});setActive("Co-Doc");}}><main className={`dashboard-shell ${collapsed ? "sidebar-collapsed" : ""} ${active === "Co-Doc" ? "chat-active" : ""}`}>
       <button className="mobile-menu" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen}>{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
       <aside id="main-sidebar" className={`app-sidebar ${menuOpen ? "sidebar-open" : ""}`}>
         <div className="sidebar-top"><a href="/dashboard" className="sidebar-brand">viniścaya</a><button className="sidebar-toggle" onClick={() => setCollapsed(true)} aria-label="Collapse sidebar" aria-expanded={!collapsed} aria-controls="main-sidebar"><PanelLeftClose size={18}/></button></div>

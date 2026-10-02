@@ -12,3 +12,5 @@ Runtime status must be checked separately; a healthy API does not certify succes
 GET /v1/jobs/{id}/frames/{step} renders authenticated left/right fsaverage5 lateral cortical maps from actual predicted vertices. The diverging scale uses the same 98th-percentile absolute range across the whole sequence. Images are cached per job. Requires nilearn and matplotlib.
 
 The Audio tab supports browser microphone recording (MediaRecorder), local playback, and explicit submission. Microphone permission is requested on click; tracks stop on finish/unmount, and recordings stop at 119 seconds. Audio WebM/MP4 is classified by MIME type and decoded to 16 kHz mono WAV before inference, including recordings without duration metadata.
+
+Completed jobs expose /v1/jobs/{id}/report (JSON, or ?download=true Markdown). Reports derive all statistics directly from predicted arrays and include peak RMS, time windows, hemisphere RMS, full time-step tables, and explicit research limitations. The UI opens the report Sheet automatically and can seed a Co-Doc conversation with the report text.
