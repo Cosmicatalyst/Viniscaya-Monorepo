@@ -86,6 +86,10 @@ def run(path,id,source,kind):
             audio=path/"speech.wav"
             subprocess.run(["espeak-ng","-f",str(source),"-w",str(audio)],check=True,timeout=60)
             source=audio;kind="audio"
+        if kind=="audio" and source.suffix.lower()!=".wav":
+            decoded=path/"decoded-audio.wav"
+            subprocess.run(["ffmpeg","-y","-v","error","-i",str(source),"-vn","-t","121","-ac","1","-ar","16000",str(decoded)],check=True,timeout=120)
+            source=decoded
         duration=subprocess.check_output(["ffprobe","-v","error","-show_entries","format=duration","-of","default=noprint_wrappers=1:nokey=1",str(source)],timeout=30,text=True).strip()
         if not duration or float(duration)>120:raise ValueError("Use a stimulus lasting at most 120 seconds")
         from tribev2.eventstransforms import ExtractWordsFromAudio
@@ -112,6 +116,7 @@ async def submit(file:UploadFile|None=File(None),text:str=Form("")):
     if bool(file)==bool(text.strip()):raise HTTPException(422,"Provide exactly one text, audio or video stimulus")
     suffix=Path(file.filename or "").suffix.lower() if file else ".txt"
     kinds={".txt":"text",".wav":"audio",".mp3":"audio",".flac":"audio",".ogg":"audio",".mp4":"video",".avi":"video",".mkv":"video",".mov":"video",".webm":"video"}
+    if file and suffix in {".webm",".mp4"} and (file.content_type or "").startswith("audio/"):kinds[suffix]="audio"
     if suffix not in kinds:raise HTTPException(422,"Unsupported stimulus format")
     if len(text)>5000:raise HTTPException(422,"Text limit is 5000 characters")
     if not slots.acquire(False):raise HTTPException(429,"Inference queue is full")

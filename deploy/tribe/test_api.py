@@ -44,3 +44,15 @@ def test_brain_frame_auth_and_bounds(client):
     np.save(path/"predictions.npy",np.zeros((2,20484)),allow_pickle=False)
     assert client.get(f"/v1/jobs/{id}/frames/2",headers=headers).status_code==404
     assert client.get(f"/v1/jobs/{id}/frames/-1",headers=headers).status_code==404
+
+
+def test_microphone_webm_is_audio(client,monkeypatch):
+    # Capture worker arguments without running heavyweight inference.
+    endpoint=next(route.endpoint for route in client.app.routes if getattr(route,"path",None)=="/v1/jobs")
+    captured=[]
+    class Queue:
+        def submit(self,*args):captured.append(args)
+    monkeypatch.setitem(endpoint.__globals__,"pool",Queue())
+    response=client.post("/v1/jobs",headers={"Authorization":"Bearer test-token"},files={"file":("voice.webm",b"recording","audio/webm")})
+    assert response.status_code==202
+    assert captured[0][-1]=="audio"

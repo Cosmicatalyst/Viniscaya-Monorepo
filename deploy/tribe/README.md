@@ -10,3 +10,5 @@ TRIBE outputs average-subject predicted cortical activity on fsaverage5, not pat
 Runtime status must be checked separately; a healthy API does not certify successful model inference. Use `journalctl -u vinicaya-tribe` and a completed test job before treating inference as working. Model caches and uploaded files remain on the server until explicitly removed; no automatic retention cleanup currently exists.
 
 GET /v1/jobs/{id}/frames/{step} renders authenticated left/right fsaverage5 lateral cortical maps from actual predicted vertices. The diverging scale uses the same 98th-percentile absolute range across the whole sequence. Images are cached per job. Requires nilearn and matplotlib.
+
+The Audio tab supports browser microphone recording (MediaRecorder), local playback, and explicit submission. Microphone permission is requested on click; tracks stop on finish/unmount, and recordings stop at 119 seconds. Audio WebM/MP4 is classified by MIME type and decoded to 16 kHz mono WAV before inference, including recordings without duration metadata.
