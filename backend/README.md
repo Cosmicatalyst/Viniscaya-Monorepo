@@ -119,3 +119,6 @@ Model metadata and raw evidence remain available in JSON; the report UI uses the
 
 ## ESM-2 protein sequence model
 Install `pip install -r backend/requirements-models.txt`. Copy `esm2_t30_150M_UR50D.pt` to your server and enable the `esm2` entry in `backend/models.local.json` using its absolute path (see models.example.json). Restart the Python service. Submit `/v1/inference` with `model_id: "esm2"`, `task: "embeddings"`, and an amino-acid `sequence` of 1–1022 residues. Output is a 640-dimensional mean residue embedding; it does not predict a 3D structure. Existing structure uploads and sample viewers remain available. Checkpoint weights are excluded from Git.
+
+### Sequence to 3D structure
+Select **Predict 3D structure · ESMFold** in Proteins. Enable the `esmfold` configuration with the local Hugging Face ESMFold checkpoint directory and device on the API server, then restart. The folding job uses the original sequence, not the ESM-2 pooled embedding, and returns a PDB to the viewer. Current CPU adapter requires 18 GB available RAM and limits sequences to 256 residues. Without a configured folding model the action stays unavailable; no artificial coordinates are substituted.

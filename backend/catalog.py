@@ -5,6 +5,7 @@ def model(id, name, category, modality, tasks, adapter=None):
 MODELS = [
     model("phikon", "Phikon", "Cancer", "image", ["embeddings"], "backend.adapters.hf:infer"),
     model("esm2", "ESM-2 150M", "Proteins", "sequence", ["embeddings"], "backend.adapters.esm2:infer"),
+    model("esmfold", "ESMFold", "Proteins", "sequence", ["structure"], "backend.adapters.esmfold:infer"),
     model("medsiglip-radiology", "MedSigLIP-448", "Radiology", "image_text", ["embeddings", "retrieval"], "backend.adapters.medsiglip:infer"),
     model("xrv-chest", "TorchXRayVision DenseNet121", "Radiology", "image", ["classification"], "backend.adapters.xrv:infer"),
     model("medsiglip-neurology", "MedSigLIP-448", "Neurology", "image_text", ["embeddings"], "backend.adapters.medsiglip:infer"),
@@ -20,4 +21,3 @@ for category in ["Radiology", "Neurology"]:
     id = "biomedclip-" + category.lower()
     MODEL_MAP[id] = model(id, "BiomedCLIP", category, "image_text", ["embeddings"], "backend.adapters.biomedclip:infer")
 
-MODEL_MAP["esmfold"] = model("esmfold", "ESMFold", "Proteins", "sequence", ["structure"], "backend.adapters.esmfold:infer")
