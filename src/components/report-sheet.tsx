@@ -11,7 +11,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFo
 type Report = {title: string; scope: string; markdown: string; generation_status?: string; generation_error?: string; model?: string; vision_markdown?: string};
 export function ReportSheet({ jobId, brain = false }: {jobId: string; brain?: boolean}) {
   const openChat = useReportChat();
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(!brain);
   const [report, setReport] = useState<Report>();
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);

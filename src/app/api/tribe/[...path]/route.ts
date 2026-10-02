@@ -12,7 +12,7 @@ async function proxy(request: Request, context: {params: Promise<{path: string[]
  try {
   const response=await fetch(`${process.env.TRIBE_API_URL}/${target}${new URL(request.url).search}`,{method:request.method,headers:{Authorization:`Bearer ${process.env.TRIBE_API_TOKEN}`,...(request.headers.get("content-type")?{"Content-Type":request.headers.get("content-type")!}:{})},body:request.method==="POST"?request.body:undefined,...({duplex:"half"} as Record<string,string>),signal:AbortSignal.any([request.signal,AbortSignal.timeout(60000)]),cache:"no-store"});
   if(!response.ok && !(response.headers.get("content-type")||"").includes("application/json"))return Response.json({error:"Brain-response API is restarting or unavailable. Please retry."},{status:response.status});
-  return new Response(response.body,{status:response.status,headers:{"Content-Type":response.headers.get("content-type")||"application/json","Cache-Control":"no-store",...(response.headers.get("content-disposition")?{"Content-Disposition":response.headers.get("content-disposition")!}:{})}});
+  return new Response(response.body,{status:response.status,headers:{"Content-Type":response.headers.get("content-type")||"application/json","Cache-Control":/\/frames\/\d+$/.test(target)?"private, max-age=86400":"no-store",...(response.headers.get("content-disposition")?{"Content-Disposition":response.headers.get("content-disposition")!}:{})}});
  } catch {return Response.json({error:"Brain-response API is unavailable."},{status:503});}
 }
 export const GET=proxy;
