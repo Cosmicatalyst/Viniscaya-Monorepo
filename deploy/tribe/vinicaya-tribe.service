@@ -6,7 +6,8 @@ Wants=network-online.target
 User=ubuntu
 WorkingDirectory=/home/ubuntu/vinicaya-tribe
 EnvironmentFile=/home/ubuntu/vinicaya-tribe/api.env
-Environment=CUDA_VISIBLE_DEVICES=
+Environment=CUDA_VISIBLE_DEVICES=0
+Environment=TRIBE_DEVICE=cuda
 Environment=OMP_NUM_THREADS=8
 Environment=MKL_NUM_THREADS=8
 ExecStart=/home/ubuntu/vinicaya-tribe/.venv/bin/python -m uvicorn api:app --host 127.0.0.1 --port 8026

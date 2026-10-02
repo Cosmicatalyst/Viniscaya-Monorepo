@@ -56,9 +56,14 @@ def run(path,id,source,kind):
     try:
         status(path,{"id":id,"status":"running","phase":"Loading model"})
         import numpy as np
+        import torch
         from tribev2 import TribeModel
+        device=os.getenv("TRIBE_DEVICE","cpu")
+        if device=="cuda":
+            if not torch.cuda.is_available():raise ValueError("GPU runtime is unavailable")
+            torch.cuda.set_per_process_memory_fraction(0.28)
         if model is None:
-            model=TribeModel.from_pretrained(os.getenv("TRIBE_WEIGHTS", "facebook/tribev2"),cache_folder=str(ROOT/"cache"),device="cpu",config_update={"data.text_feature.device":"cpu","data.audio_feature.device":"cpu","data.image_feature.image.device":"cpu","data.video_feature.image.device":"cpu","data.batch_size":1})
+            model=TribeModel.from_pretrained(os.getenv("TRIBE_WEIGHTS", "facebook/tribev2"),cache_folder=str(ROOT/"cache"),device=device,config_update={"data.text_feature.device":device,"data.audio_feature.device":device,"data.image_feature.image.device":device,"data.video_feature.image.device":device,"data.video_feature.image.batch_size":1,"data.batch_size":1})
         status(path,{"id":id,"status":"running","phase":"Preparing stimulus and word timings"})
         if kind=="text":
             audio=path/"speech.wav"
