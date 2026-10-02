@@ -81,7 +81,7 @@ export function SpecialtyWorkspace({ category }: { category: string }) {
   const output = job?.result?.output;
   return <div className="medical-workspace">
     <div className="medical-heading"><h1>{category}</h1><span>Case analysis</span></div>
-    <div className="sample-actions"><Button variant="outline" disabled={running} onClick={() => void trySample()}>{category === "Proteins" ? "View sample structure" : "Try sample"}</Button>{category === "Radiology" && <Button variant="ghost" disabled={running} onClick={() => void trySample("bone")}>Bone X-ray sample</Button>}{category === "Cancer" && <Button variant="ghost" disabled={running} onClick={() => void trySample("adenocarcinoma")}>Second tissue sample</Button>}</div>
+    <div className="sample-actions"><Button variant="outline" disabled={running} onClick={() => void trySample()}>{category === "Proteins" ? "View sample structure" : "Try sample"}</Button>{category === "Neurology" && <Button variant="ghost" disabled={running} onClick={() => void trySample("volume")}>3D MRI sample</Button>}{category === "Radiology" && <Button variant="ghost" disabled={running} onClick={() => void trySample("bone")}>Bone X-ray sample</Button>}{category === "Cancer" && <Button variant="ghost" disabled={running} onClick={() => void trySample("adenocarcinoma")}>Second tissue sample</Button>}</div>
     {sampleNotice && <p className="input-help" role="status">{sampleNotice}</p>}
     {category === "Proteins" && <ProteinViewer pdb={typeof output?.pdb === "string" ? output.pdb : samplePdb} />}
     {loading ? <p className="medical-loading"><LoaderCircle size={16} className="animate-spin" />Connecting to Python API…</p> : <>

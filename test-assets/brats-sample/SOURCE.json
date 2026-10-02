@@ -1,0 +1,30 @@
+{
+  "dataset": "flwrlabs/fed-brats",
+  "revision": "19ad12d7c55657045638765cd8b0a9cbbb540f86",
+  "case": "BraTS-GLI-00008-100",
+  "license": "CC-BY-NC-SA-4.0",
+  "source": "https://huggingface.co/datasets/flwrlabs/fed-brats",
+  "changes": "Filenames renamed to explicit sequence labels; voxel data unchanged.",
+  "files": [
+    {
+      "filename": "BraTS-GLI-00008-100_t1ce.nii.gz",
+      "url": "https://huggingface.co/datasets/flwrlabs/fed-brats/resolve/19ad12d7c55657045638765cd8b0a9cbbb540f86/data/test/BraTS-GLI-00008-100/BraTS-GLI-00008-100-t1c.nii.gz",
+      "sha256": "addaf71f6bdbca6d3698eb92b49f1a5725ad916bbeecbd08668c10f35f67e782"
+    },
+    {
+      "filename": "BraTS-GLI-00008-100_t1.nii.gz",
+      "url": "https://huggingface.co/datasets/flwrlabs/fed-brats/resolve/19ad12d7c55657045638765cd8b0a9cbbb540f86/data/test/BraTS-GLI-00008-100/BraTS-GLI-00008-100-t1n.nii.gz",
+      "sha256": "2c3841163d50d9647cdf82a1f6635a1001dbacd4263db74df6b5c3a640ef7bfa"
+    },
+    {
+      "filename": "BraTS-GLI-00008-100_t2.nii.gz",
+      "url": "https://huggingface.co/datasets/flwrlabs/fed-brats/resolve/19ad12d7c55657045638765cd8b0a9cbbb540f86/data/test/BraTS-GLI-00008-100/BraTS-GLI-00008-100-t2w.nii.gz",
+      "sha256": "e5f6deba8babbaaeaaa1a18fd8609be4aa5e3148cdff84f9a003bb1f48584c4e"
+    },
+    {
+      "filename": "BraTS-GLI-00008-100_flair.nii.gz",
+      "url": "https://huggingface.co/datasets/flwrlabs/fed-brats/resolve/19ad12d7c55657045638765cd8b0a9cbbb540f86/data/test/BraTS-GLI-00008-100/BraTS-GLI-00008-100-t2f.nii.gz",
+      "sha256": "3b0bb089db276e888ff7038853fee724787b2f590306c9e6c670e0666c92f029"
+    }
+  ]
+}

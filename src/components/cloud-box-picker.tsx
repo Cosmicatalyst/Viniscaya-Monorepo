@@ -1,17 +1,20 @@
 "use client";
 import { useState } from "react";
+import { Select } from "@base-ui/react/select";
 import { Dialog } from "@base-ui/react/dialog";
-import { Cloud, Cpu, X } from "lucide-react";
+import { Cloud, Cpu, X, Check, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function CloudBoxPicker() {
   const [open, setOpen] = useState(false);
   return <div className="cloud-box-picker">
-    <label className="sr-only" htmlFor="compute-picker">Compute location</label>
-    <select id="compute-picker" value={open ? "box" : "cloud"} onChange={event => setOpen(event.target.value === "box")}>
-      <option value="cloud">Vinicaya Cloud</option><option value="box">Vinicaya box</option>
-    </select>
-    <Cloud size={16} aria-hidden="true"/>
+    <Select.Root value={open ? "box" : "cloud"} onValueChange={value => setOpen(value === "box")}>
+      <Select.Trigger className="compute-trigger" aria-label="Compute location"><Cloud size={16}/><Select.Value/><Select.Icon><ChevronDown size={14}/></Select.Icon></Select.Trigger>
+      <Select.Portal><Select.Positioner sideOffset={8} align="end" className="compute-positioner"><Select.Popup className="compute-menu"><Select.List>
+        <Select.Item value="cloud" className="compute-option"><Cloud size={17}/><div><Select.ItemText>Vinicaya Cloud</Select.ItemText><small>Remote workspace</small></div><Select.ItemIndicator><Check size={15}/></Select.ItemIndicator></Select.Item>
+        <Select.Item value="box" className="compute-option"><Cpu size={17}/><div><Select.ItemText>Vinicaya box</Select.ItemText><small>Connect to a nearby device</small></div><Select.ItemIndicator><Check size={15}/></Select.ItemIndicator></Select.Item>
+      </Select.List></Select.Popup></Select.Positioner></Select.Portal>
+    </Select.Root>
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Portal>
         <Dialog.Backdrop className="box-modal-backdrop"/>

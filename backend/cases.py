@@ -188,7 +188,7 @@ def case(body:CaseRequest):
 SAMPLES = {
  'Cancer': {'default':'cancer-h-and-e.jpg','adenocarcinoma':'cancer-adenocarcinoma.jpg'},
  'Radiology': {'default':'radiology-chest-xray.jpg','bone':'radiology-bone-xray.jpg'},
- 'Neurology': {'default':'neurology-brain-mri.jpg'},
+ 'Neurology': {'default':'neurology-brain-mri.jpg','volume':[f'brats-sample/BraTS-GLI-00008-100_{sequence}.nii.gz' for sequence in ['t1ce','t1','t2','flair']]},
  'Cardiac': {'default':'cardiac-SYNTHETIC-pipeline-test.npz'},
  'General': {'default':'general-fictional-note.txt'},
  'Proteins': {'default':'protein-crambin-1CRN.pdb'},
@@ -202,14 +202,20 @@ def sample(body: SampleRequest):
  import shutil
  filename=SAMPLES.get(body.category,{}).get(body.variant)
  if not filename: raise HTTPException(422,'Unknown sample.')
- path=main.ROOT.parent/'test-assets'/filename
- if not path.is_file(): raise HTTPException(503,'Bundled sample file is unavailable.')
+ filenames=filename if isinstance(filename,list) else [filename]
+ paths=[main.ROOT.parent/'test-assets'/name for name in filenames]
+ path=paths[0]
+ if not all(p.is_file() for p in paths): raise HTTPException(503,'Bundled sample file is unavailable.')
  notice='Demo sample, not a patient case. Outputs are unverified research results.'
  if body.category=='Proteins': return {'kind':'structure','pdb':path.read_text(encoding='utf-8'),'name':'Crambin 1CRN','notice':'Public experimental structure for viewer testing; not a sequence prediction.'}
  if body.category=='Cardiac': notice='Synthetic ECG pipeline test only. Scores have no clinical meaning.'
  if body.category=='General': notice='Fictional clinical note for testing only.'
- id=uuid4().hex;target=main.DATA/'uploads'/(id+path.suffix)
- shutil.copyfile(path,target)
- with main.db() as con: con.execute('INSERT INTO files VALUES (?,?,?,?)',(id,'DEMO_'+filename,str(target),target.stat().st_size))
- created=case(CaseRequest(category=body.category,file_ids=[id],text=notice+' Do not infer a real patient diagnosis or treatment.'))
- return {**created,'sample_name':filename,'sample_notice':notice,'sample_file_ids':[id]}
+ if body.category=='Neurology' and body.variant=='volume': notice='Public de-identified BraTS-GLI-00008-100 research MRI sample (Fed-BraTS, CC-BY-NC-SA-4.0). Four aligned MRI volumes; predictions are unverified and not for patient care.'
+ ids=[]
+ for path in paths:
+  id=uuid4().hex;target=main.DATA/'uploads'/(id+('.nii.gz' if path.name.endswith('.nii.gz') else path.suffix))
+  shutil.copyfile(path,target)
+  with main.db() as con: con.execute('INSERT INTO files VALUES (?,?,?,?)',(id,'DEMO_'+path.name,str(target),target.stat().st_size))
+  ids.append(id)
+ created=case(CaseRequest(category=body.category,file_ids=ids,text=notice+' Do not infer a real patient diagnosis or treatment.'))
+ return {**created,'sample_name':'BraTS 3D MRI · four sequences' if len(ids)>1 else filenames[0],'sample_notice':notice,'sample_file_ids':ids}
