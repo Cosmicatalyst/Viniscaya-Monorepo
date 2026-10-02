@@ -1,0 +1,69 @@
+[
+  {
+    "file": "cancer-h-and-e.jpg",
+    "status": "passed",
+    "dimensions": 768,
+    "image_size": [
+      1200,
+      800
+    ],
+    "seconds": 7.55
+  },
+  {
+    "file": "cancer-adenocarcinoma.jpg",
+    "status": "passed",
+    "dimensions": 768,
+    "image_size": [
+      220,
+      166
+    ],
+    "seconds": 0.25
+  },
+  {
+    "file": "radiology-chest-xray.jpg",
+    "status": "passed",
+    "dimensions": 512,
+    "image_size": [
+      1929,
+      2207
+    ],
+    "seconds": 7.11
+  },
+  {
+    "file": "radiology-bone-xray.jpg",
+    "status": "passed",
+    "dimensions": 512,
+    "image_size": [
+      170,
+      228
+    ],
+    "seconds": 4.35
+  },
+  {
+    "file": "neurology-brain-mri.jpg",
+    "status": "passed",
+    "dimensions": 512,
+    "image_size": [
+      1200,
+      1285
+    ],
+    "seconds": 4.46
+  },
+  {
+    "file": "cardiac-SYNTHETIC-pipeline-test.npz",
+    "status": "passed",
+    "scores": 12,
+    "synthetic": true
+  },
+  {
+    "file": "cardiac-INVALID-shape.npz",
+    "status": "expected rejection",
+    "error": "Expected one ECG: waveforms (1,1,2500,12), tabular (1,7)."
+  },
+  {
+    "file": "protein-crambin-1CRN.pdb",
+    "status": "PDB text verified",
+    "atom_records": 327,
+    "visual_rendering": "not verified"
+  }
+]

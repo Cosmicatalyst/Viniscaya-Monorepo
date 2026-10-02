@@ -1,0 +1,44 @@
+{
+  "phikon": {
+    "enabled": false,
+    "adapter": "backend.adapters.hf:infer",
+    "weights": "C:/models/phikon",
+    "device": "cpu"
+  },
+  "biomedclip-radiology": {
+    "enabled": false,
+    "adapter": "backend.adapters.biomedclip:infer",
+    "weights": "C:/models/biomedclip-radiology",
+    "device": "cpu"
+  },
+  "biomedclip-neurology": {
+    "enabled": false,
+    "adapter": "backend.adapters.biomedclip:infer",
+    "weights": "C:/models/biomedclip-neurology",
+    "device": "cpu"
+  },
+  "echonext": {
+    "enabled": false,
+    "adapter": "backend.adapters.echonext:infer",
+    "weights": "C:/models/echonext",
+    "device": "cpu"
+  },
+  "qwen-small": {
+    "enabled": false,
+    "adapter": "backend.adapters.text:infer",
+    "weights": "C:/models/qwen-small",
+    "device": "cpu"
+  },
+  "pubmedbert": {
+    "enabled": false,
+    "adapter": "backend.adapters.hf:infer",
+    "weights": "C:/models/pubmedbert",
+    "device": "cpu"
+  },
+  "esmfold": {
+    "enabled": false,
+    "adapter": "backend.adapters.esmfold:infer",
+    "weights": "C:/models/esmfold",
+    "device": "cpu"
+  }
+}

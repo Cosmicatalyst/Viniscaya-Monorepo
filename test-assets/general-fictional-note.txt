@@ -1,0 +1,7 @@
+Fictional testing scenario.
+
+Rewrite the following as a concise SOAP note. Do not add information.
+Subjective: Adult patient reports mild headache since this morning.
+Objective: No examination findings or vital signs provided.
+Assessment: Not supplied.
+Plan: Not supplied.

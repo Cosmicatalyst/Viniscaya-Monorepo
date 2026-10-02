@@ -1,0 +1,44 @@
+[
+  {
+    "file": "cancer-h-and-e.jpg",
+    "category": "Cancer",
+    "url": "https://huggingface.co/microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224/resolve/9f341de24bfb00180f1b847274256e9b65a3a32e/example_data/biomed_image_classification_example_data/H_and_E_histopathology.jpg",
+    "sha256": "fb1b0e2adc9858d8972a7739fb43b022f0be3b677f5d6405b45d7555b3231b05",
+    "bytes": 177447
+  },
+  {
+    "file": "cancer-adenocarcinoma.jpg",
+    "category": "Cancer",
+    "url": "https://huggingface.co/microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224/resolve/9f341de24bfb00180f1b847274256e9b65a3a32e/example_data/biomed_image_classification_example_data/adenocarcinoma_histopathology.jpg",
+    "sha256": "f9361790bf53556a11c452173b44ff32bfd8d920824b9d202b215a19dce9e43d",
+    "bytes": 26948
+  },
+  {
+    "file": "radiology-chest-xray.jpg",
+    "category": "Radiology",
+    "url": "https://huggingface.co/microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224/resolve/9f341de24bfb00180f1b847274256e9b65a3a32e/example_data/biomed_image_classification_example_data/chest_X-ray.jpg",
+    "sha256": "4cbbcf805291db949e4ff085ca3c7258b2823de21b2857ae684e6c91ff9a38a4",
+    "bytes": 906335
+  },
+  {
+    "file": "radiology-bone-xray.jpg",
+    "category": "Radiology",
+    "url": "https://huggingface.co/microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224/resolve/9f341de24bfb00180f1b847274256e9b65a3a32e/example_data/biomed_image_classification_example_data/bone_X-ray.jpg",
+    "sha256": "8e7d61839700fcd506b3f9fa320b7b10dd69d77557c377a85049e0d7f2b9e7ea",
+    "bytes": 7436
+  },
+  {
+    "file": "neurology-brain-mri.jpg",
+    "category": "Neurology",
+    "url": "https://huggingface.co/microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224/resolve/9f341de24bfb00180f1b847274256e9b65a3a32e/example_data/biomed_image_classification_example_data/brain_MRI.jpg",
+    "sha256": "afdabc2afad6480f754fbabe1a90589cfe59bd870d4510262a81b8b098596ccf",
+    "bytes": 128221
+  },
+  {
+    "file": "protein-crambin-1CRN.pdb",
+    "category": "Proteins",
+    "url": "https://files.rcsb.org/download/1CRN.pdb",
+    "sha256": "42199a30a0701864a2a5cc76cd7f35cc544cd0e65fbcf63e03c166543249b811",
+    "bytes": 49491
+  }
+]

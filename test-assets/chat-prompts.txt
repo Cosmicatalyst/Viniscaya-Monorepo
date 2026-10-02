@@ -1,0 +1,4 @@
+1. Create a blank SOAP note template in Markdown.
+2. Make a Markdown table with columns: Item, Finding, Notes. Use blank placeholders.
+3. Write a short research checklist for reviewing a medical paper.
+4. Explain image embeddings versus classification in three sentences.
