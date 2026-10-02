@@ -116,3 +116,6 @@ CPU inference uses 128x128x96 sliding windows rather than the reference bundle's
 this implementation has not undergone clinical accuracy validation. The mask can be downloaded through
 `GET /v1/jobs/{id}/segmentation`. Existing analyses retain their original outputs; rerun uploads to use new encoders.
 Model metadata and raw evidence remain available in JSON; the report UI uses the Sushruta-1 display name.
+
+## ESM-2 protein sequence model
+Install `pip install -r backend/requirements-models.txt`. Copy `esm2_t30_150M_UR50D.pt` to your server and enable the `esm2` entry in `backend/models.local.json` using its absolute path (see models.example.json). Restart the Python service. Submit `/v1/inference` with `model_id: "esm2"`, `task: "embeddings"`, and an amino-acid `sequence` of 1–1022 residues. Output is a 640-dimensional mean residue embedding; it does not predict a 3D structure. Existing structure uploads and sample viewers remain available. Checkpoint weights are excluded from Git.

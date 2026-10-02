@@ -11,10 +11,10 @@ async function proxy(request: Request, context: { params: Promise<{ path: string
       if (origin && new URL(origin).host !== request.headers.get("host")) return Response.json({ error: "Invalid request." }, { status: 403 });
     } catch { return Response.json({ error: "Invalid request." }, { status: 403 }); }
   }
-  if (!process.env.MEDICAL_API_TOKEN) return Response.json({ error: "Local API is not configured." }, { status: 503 });
+  if (!process.env.MEDICAL_API_TOKEN) return Response.json({ error: "Medical API is not configured." }, { status: 503 });
   try {
     const contentType = request.headers.get("content-type");
-    const response = await fetch(`${process.env.MEDICAL_API_URL || "http://127.0.0.1:8000"}/${target}${new URL(request.url).search}`, {
+    const response = await fetch(`${process.env.MEDICAL_API_URL || "https://vinicaya.tnsaai.com"}/${target}${new URL(request.url).search}`, {
       method: request.method,
       headers: { Authorization: `Bearer ${process.env.MEDICAL_API_TOKEN}`, ...(contentType ? { "Content-Type": contentType } : {}) },
       body: ["POST", "PUT"].includes(request.method) ? request.body : undefined,
@@ -28,7 +28,7 @@ async function proxy(request: Request, context: { params: Promise<{ path: string
       "Cache-Control": "no-store",
       ...(response.headers.get("content-disposition") ? { "Content-Disposition": response.headers.get("content-disposition")! } : {}),
     } });
-  } catch { return Response.json({ error: "Local Python server is unavailable. Start the medical API and retry." }, { status: 503 }); }
+  } catch { return Response.json({ error: "Medical API is unavailable. Please retry." }, { status: 503 }); }
 }
 
 export const GET = proxy;

@@ -78,7 +78,7 @@ def test_adapter_failure_and_missing_weights(client):
     assert wait(client, id)["status"] == "failed"
     assert client.get(f"/v1/jobs/{id}/result").status_code == 409
     assert client.get(f"/v1/jobs/{id}/report").status_code == 409
-    main.CONFIG.write_text(json.dumps({"esmfold": {"enabled": True, "weights": "missing-path"}}))
+    main.CONFIG.write_text(json.dumps({"esm2": {"enabled": True, "weights": "missing-path"}}))
     assert client.get("/v1/models?category=Proteins").json()["models"][0]["status"] == "missing_weights"
 
 def test_workspace_persistence_and_stats(client):

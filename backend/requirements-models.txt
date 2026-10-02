@@ -18,3 +18,5 @@ torchxrayvision==1.4.0
 monai==1.4.0
 sentencepiece>=0.2,<1
 protobuf>=5,<8
+
+fair-esm==2.0.0

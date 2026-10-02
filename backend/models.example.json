@@ -40,5 +40,11 @@
     "adapter": "backend.adapters.esmfold:infer",
     "weights": "C:/models/esmfold",
     "device": "cpu"
+  },
+  "esm2": {
+    "enabled": false,
+    "adapter": "backend.adapters.esm2:infer",
+    "weights": "/models/esm2/esm2_t30_150M_UR50D.pt",
+    "device": "cpu"
   }
 }

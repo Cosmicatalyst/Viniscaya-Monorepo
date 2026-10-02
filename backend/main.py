@@ -77,6 +77,8 @@ def availability(model, config):
             return "missing_adapter", "Adapter module is not installed."
         if entry == "backend.adapters.hf:infer" and any(importlib.util.find_spec(p) is None for p in ["torch", "transformers"]):
             return "missing_dependencies", "Install the optional torch and transformers dependencies."
+        if entry == "backend.adapters.esm2:infer" and any(importlib.util.find_spec(p) is None for p in ["torch", "esm"]):
+            return "missing_dependencies", "Install torch and fair-esm dependencies."
         if entry == "backend.adapters.esmfold:infer":
             import psutil
             if config.get("device", "cpu") == "cpu" and psutil.virtual_memory().available < 18 * 1024 ** 3:
