@@ -1,4 +1,6 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Learn More About Project Viniscaya
+-[Viniścaya Doc (1).pdf](https://github.com/user-attachments/files/33028916/Viniscaya.Doc.1.pdf)
 
 ## Getting Started
 
